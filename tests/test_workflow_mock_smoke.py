@@ -24,6 +24,11 @@ def test_end_to_end_mock(tmp_path: Path):
     q = "2.4 GHz rectangular patch on FR4 show return loss"
     out = run_pilot_pipeline(q, config=cfg, root=tmp_path)
     assert out["state"] == "done"
+    trace = out.get("pipeline_trace")
+    assert isinstance(trace, list)
+    assert len(trace) >= 5
+    stages = [t["stage"] for t in trace]
+    assert "parse" in stages and "execute" in stages
     tid = out["task_id"]
     spec_path = tmp_path / "outputs" / "task_specs" / f"{tid}_task_spec.json"
     assert spec_path.exists()

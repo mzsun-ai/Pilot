@@ -13,13 +13,14 @@
     />
     <link rel="stylesheet" href="/static/styles.css" />
     <link rel="stylesheet" href="/static/portal.css" />
+    <link rel="stylesheet" href="/static/landing.css" />
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" defer></script>
     <script src="/static/i18n.js" defer></script>
     <script src="/static/pilot-nav.js" defer></script>
     <script src="/static/app.js" defer></script>
   </head>
-  <body data-pilot-page="console" data-pilot-nav="agent">
-    <header class="pilot-unified-bar" aria-label="Main navigation">
+  <body class="agent-page" data-pilot-page="console" data-pilot-nav="agent">
+    <header class="pilot-unified-bar pilot-unified-bar--scroll" aria-label="Main navigation">
       <a class="pilot-unified-logo" href="/">Pilot</a>
       <nav class="pilot-unified-links">
         <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
@@ -28,32 +29,33 @@
         <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
         <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
         <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
-        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+        <a href="/api-reference" data-pilot-nav-link="api" data-i18n="navApi">API</a>
       </nav>
     </header>
     <div class="noise" aria-hidden="true"></div>
     <div class="wrap">
-      <header class="brand">
-        <div class="brand-mark">
-          <h1 class="pilot-gradient-headline brand-hero-title" data-i18n="agentHeroTitle">Pilot Agent</h1>
-          <span class="tag">openEMS</span>
-        </div>
-        <div class="brand-right">
+      <header class="agent-hero">
+        <div class="agent-hero-top">
+          <span class="agent-kicker" data-i18n="agentKicker"></span>
           <div class="lang-switch" role="group" aria-label="Language">
             <span class="lang-label" data-i18n="langLabel">Language</span>
             <button type="button" class="lang-btn" data-lang="en">EN</button>
             <button type="button" class="lang-btn" data-lang="zh">中文</button>
           </div>
-          <p class="strap" data-i18n="strap" data-i18n-html></p>
         </div>
+        <h1 class="pilot-gradient-headline agent-hero-title" data-i18n="agentHeroTitle"></h1>
+        <p class="agent-strap" data-i18n="strap" data-i18n-html></p>
       </header>
 
-      <div class="grid">
-        <section class="card">
+      <div class="grid agent-grid">
+        <section class="card agent-panel">
           <div class="card-inner">
-            <h2 data-i18n="designTitle">Design request</h2>
+            <div class="panel-head">
+              <h2 data-i18n="designTitle"></h2>
+              <span class="panel-badge" data-i18n="agentKicker"></span>
+            </div>
             <p class="hint" data-i18n="designHint"></p>
-            <label class="sr-only" for="query" data-i18n="queryLabel">Simulation request</label>
+            <label class="sr-only" for="query" data-i18n="queryLabel"></label>
             <textarea id="query" placeholder=""></textarea>
             <div class="chips">
               <button type="button" class="chip" data-i18n="chip24" data-q="Design a 2.4 GHz rectangular patch antenna on FR4 and show me the return loss near resonance."></button>
@@ -61,36 +63,50 @@
               <button type="button" class="chip" data-i18n="chip58" data-q="Simulate a microstrip patch at 5.8 GHz on FR4 (eps_r ~ 4.4), report S11 from 5 to 6.5 GHz."></button>
             </div>
             <div class="actions">
-              <button type="button" id="submit" data-i18n="submit">Run simulation</button>
-              <span class="status" id="status" data-i18n="statusReady">Ready</span>
+              <button type="button" class="btn-run" id="submit" data-i18n="submit"></button>
+              <span class="status" id="status" data-i18n="statusReady"></span>
             </div>
           </div>
         </section>
-        <section class="card empty" id="results-panel">
+        <section class="card agent-panel empty" id="results-panel">
           <div class="card-inner">
-            <h2 data-i18n="resultsTitle">Results</h2>
-            <p class="hint" data-i18n="resultsHint"></p>
-            <div class="placeholder">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <p class="placeholder-text" data-i18n="placeholderHtml" data-i18n-html></p>
+            <div class="panel-head">
+              <h2 data-i18n="resultsTitle"></h2>
+              <p class="hint panel-hint" data-i18n="resultsHint"></p>
             </div>
-            <div id="error" class="error-banner" role="alert"></div>
-            <div id="report" class="report-body"></div>
-            <div id="plot-wrap" class="plot-block" style="display: none">
-              <img id="plot-img" alt="" />
-              <div class="plot-caption"></div>
+            <div id="result-meta" class="result-meta" hidden>
+              <span class="result-meta-label">task</span>
+              <code id="result-task-id" class="result-meta-id"></code>
+              <span class="result-meta-pill" data-i18n="statusSuccess"></span>
             </div>
-            <div id="artifact-links" class="links-row"></div>
+            <div id="pipeline-trace" class="pipeline-trace" hidden>
+              <div class="pipeline-trace-title" data-i18n="agentPipelineTitle"></div>
+              <div id="pipeline-trace-rows" class="pipeline-trace-rows" role="list"></div>
+            </div>
+            <div class="results-empty" id="results-empty">
+              <div class="results-empty-visual" aria-hidden="true"></div>
+              <p class="results-empty-title" data-i18n="placeholderTitle"></p>
+              <p class="results-empty-desc" data-i18n="placeholderHtml" data-i18n-html></p>
+            </div>
+            <div id="results-body" class="results-body">
+              <div id="error" class="error-banner" role="alert"></div>
+              <div id="report" class="report-body"></div>
+              <div id="plot-wrap" class="plot-block" style="display: none">
+                <img id="plot-img" alt="" />
+                <div class="plot-caption"></div>
+              </div>
+              <div id="artifact-links" class="links-row"></div>
+            </div>
           </div>
         </section>
       </div>
 
       <section class="card showcase-card-wrap">
         <div class="card-inner">
-          <h2 data-i18n="showcaseTitle">Example scenarios</h2>
-          <p class="hint showcase-hint" data-i18n="showcaseSubtitle"></p>
+          <div class="panel-head">
+            <h2 data-i18n="showcaseTitle"></h2>
+            <p class="hint showcase-hint" data-i18n="showcaseSubtitle"></p>
+          </div>
           <div class="showcase-grid">
             <article class="showcase-tile">
               <span class="sc-tag" data-i18n="ex1Tag"></span>
@@ -145,5 +161,16 @@
 
       <footer class="site" data-i18n="footer"></footer>
     </div>
+    <script>
+      (function () {
+        var bar = document.querySelector(".pilot-unified-bar--scroll");
+        if (!bar) return;
+        function onScroll() {
+          bar.classList.toggle("is-scrolled", window.scrollY > 8);
+        }
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+      })();
+    </script>
   </body>
 </html>

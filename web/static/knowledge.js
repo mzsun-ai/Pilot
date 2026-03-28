@@ -3,6 +3,8 @@
   const inputEl = document.getElementById("knowledge-input");
   const sendBtn = document.getElementById("knowledge-send");
   const sourcesEl = document.getElementById("knowledge-sources");
+  const groundingWrap = document.getElementById("know-grounding-wrap");
+  const groundingEl = document.getElementById("know-grounding");
   const fileEl = document.getElementById("knowledge-file");
   const arxivBtn = document.getElementById("arxiv-fetch");
   const arxivQ = document.getElementById("arxiv-query");
@@ -50,6 +52,41 @@
       return String(data);
     }
   }
+  function renderGrounding(citations) {
+    if (!groundingWrap || !groundingEl) return;
+    var list = citations || [];
+    if (!list.length) {
+      groundingWrap.hidden = true;
+      groundingEl.innerHTML = "";
+      return;
+    }
+    groundingWrap.hidden = false;
+    groundingEl.innerHTML = list
+      .map(function (h, i) {
+        var src = escapeHtml(h.source || "");
+        var score = typeof h.score === "number" ? h.score.toFixed(1) : "";
+        var cid = escapeHtml(h.id || "");
+        var did = escapeHtml(h.doc_id || "");
+        var prev = escapeHtml((h.text || "").slice(0, 320));
+        if ((h.text || "").length > 320) prev += "…";
+        return (
+          '<article class="know-cite-card"><header class="know-cite-head"><span class="know-cite-num">#' +
+          (i + 1) +
+          '</span><span class="know-cite-src">' +
+          src +
+          '</span><span class="know-cite-score">' +
+          escapeHtml(T("knowCiteScore").replace("%s", score)) +
+          "</span></header>" +
+          (did ? '<p class="know-cite-id"><code>' + did + "</code></p>" : "") +
+          (cid ? '<p class="know-cite-chunk"><code>' + cid + "</code></p>" : "") +
+          '<p class="know-cite-text">' +
+          prev +
+          "</p></article>"
+        );
+      })
+      .join("");
+  }
+
   function appendBubble(role, html) {
     if (!logEl) return;
     const div = document.createElement("div");
@@ -82,10 +119,20 @@
     renderLog();
     sendBtn.disabled = true;
     try {
+      var sourceIds = [];
+      if (sourcesEl) {
+        sourcesEl.querySelectorAll(".know-source-cb:checked").forEach(function (cb) {
+          var id = cb.getAttribute("data-doc-id");
+          if (id) sourceIds.push(id);
+        });
+      }
       const r = await fetch("/api/v1/knowledge/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: messages.map((m) => ({ role: m.role, content: m.content })) }),
+        body: JSON.stringify({
+          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          source_doc_ids: sourceIds,
+        }),
       });
       var data = null;
       try {
@@ -112,6 +159,7 @@
           : formatApiDetail(data);
       messages.push({ role: "assistant", content: reply });
       renderLog();
+      renderGrounding(data.citations || []);
     } catch (e) {
       messages.push({ role: "assistant", content: "**Error:** " + String(e) });
       renderLog();
@@ -182,26 +230,44 @@
   }
   async function refreshSources() {
     if (!sourcesEl) return;
+    var countEl = document.getElementById("know-doc-count");
     try {
       const r = await fetch("/api/v1/knowledge/sources");
       const data = await r.json();
       const docs = data.documents || [];
+      if (countEl) countEl.textContent = String(docs.length);
       if (!docs.length) {
-        sourcesEl.textContent = T("knowNoSources");
+        sourcesEl.innerHTML = "<p class=\"know-sources-empty\">" + escapeHtml(T("knowNoSources")) + "</p>";
         return;
       }
       sourcesEl.innerHTML = docs
         .map(function (d) {
+          var title = escapeHtml(d.title || d.doc_id || "");
+          var didRaw = d.doc_id || "";
+          var didEsc = escapeHtml(didRaw);
+          var n = d.chunks || 0;
           return (
-            "<div style=\"margin-bottom:0.35rem\">· " +
-            escapeHtml(d.title || d.doc_id) +
-            " <span style=\"opacity:0.6\">(" +
-            (d.chunks || 0) +
-            ")</span></div>"
+            '<label class="know-source-row">' +
+            '<input type="checkbox" class="know-source-cb" data-doc-id="' +
+            didEsc +
+            '" />' +
+            '<span class="know-source-body"><span class="know-source-title">' +
+            title +
+            '</span><span class="know-source-meta">' +
+            n +
+            " " +
+            escapeHtml(T("knowChunks")) +
+            "</span></span></label>"
           );
         })
         .join("");
+      sourcesEl.querySelectorAll(".know-source-cb").forEach(function (cb) {
+        cb.addEventListener("change", function () {
+          /* selection is read at send time */
+        });
+      });
     } catch (e) {
+      if (countEl) countEl.textContent = "—";
       sourcesEl.textContent = String(e);
     }
   }
@@ -214,5 +280,8 @@
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
-  window.addEventListener("pilot-lang-change", setPlaceholder);
+  window.addEventListener("pilot-lang-change", function () {
+    setPlaceholder();
+    refreshSources();
+  });
 })();

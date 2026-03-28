@@ -6,7 +6,7 @@ import json
 import re
 import uuid
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 from pilot.logging_utils import get_logger
 
@@ -160,11 +160,21 @@ class KnowledgeCorpus:
             doc_id=doc_id,
         )
 
-    def search(self, query: str, top_k: int = 8) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query: str,
+        top_k: int = 8,
+        *,
+        doc_ids: Optional[set[str]] = None,
+    ) -> list[dict[str, Any]]:
         qtok = _tokenize(query)
         chunks = self._load_chunks()
         scored: list[tuple[float, dict[str, Any]]] = []
         for ch in chunks:
+            if doc_ids is not None:
+                did = str(ch.get("doc_id") or "")
+                if did not in doc_ids:
+                    continue
             s = _score_chunk(qtok, ch.get("text", ""))
             if s > 0:
                 scored.append((s, ch))
@@ -177,12 +187,24 @@ class KnowledgeCorpus:
                     "text": ch.get("text", "")[:1200],
                     "source": ch.get("source", ""),
                     "id": ch.get("id", ""),
+                    "doc_id": ch.get("doc_id", "") or "",
                 }
             )
         return out
 
-    def build_rag_prompt(self, user_message: str, history_note: str = "") -> tuple[str, list[dict[str, Any]]]:
-        hits = self.search(user_message, top_k=6)
+    def build_rag_prompt(
+        self,
+        user_message: str,
+        history_note: str = "",
+        *,
+        source_doc_ids: Optional[Sequence[str]] = None,
+    ) -> tuple[str, list[dict[str, Any]]]:
+        filt: set[str] | None = None
+        if source_doc_ids:
+            filt = {str(x).strip() for x in source_doc_ids if str(x).strip()}
+            if not filt:
+                filt = None
+        hits = self.search(user_message, top_k=6, doc_ids=filt)
         ctx = "\n\n---\n\n".join(f"[{h['source']}]\n{h['text']}" for h in hits) or "(no matching corpus chunks.)"
         system = (
             "You are Pilot Knowledge, an expert assistant for computational electromagnetics, antennas, "
@@ -221,6 +243,8 @@ async def complete_chat(
     messages: list[dict[str, str]],
     user_last: str,
     corpus: KnowledgeCorpus,
+    *,
+    source_doc_ids: Optional[Sequence[str]] = None,
 ) -> dict[str, Any]:
     kcfg = cfg.get("knowledge") or {}
     provider = str(kcfg.get("llm_provider", "none")).lower().strip()
@@ -231,7 +255,9 @@ async def complete_chat(
         content = (m.get("content") or "")[:2000]
         hist += f"{role}: {content}\n"
 
-    system_msg, hits = corpus.build_rag_prompt(user_last, history_note=hist)
+    system_msg, hits = corpus.build_rag_prompt(
+        user_last, history_note=hist, source_doc_ids=source_doc_ids
+    )
     cjk = bool(re.search(_cjk_pat(), user_last))
 
     if provider in ("none", ""):

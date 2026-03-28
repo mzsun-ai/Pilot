@@ -13,12 +13,13 @@
     />
     <link rel="stylesheet" href="/static/styles.css" />
     <link rel="stylesheet" href="/static/portal.css" />
+    <link rel="stylesheet" href="/static/landing.css" />
     <script src="/static/i18n.js" defer></script>
     <script src="/static/pilot-nav.js" defer></script>
     <script src="/static/surrogate.js" defer></script>
   </head>
-  <body class="portal-page" data-pilot-page="surrogate" data-pilot-nav="surrogate">
-    <header class="pilot-unified-bar" aria-label="Main navigation">
+  <body class="portal-page surrogate-page" data-pilot-page="surrogate" data-pilot-nav="surrogate">
+    <header class="pilot-unified-bar pilot-unified-bar--scroll" aria-label="Main navigation">
       <a class="pilot-unified-logo" href="/">Pilot</a>
       <nav class="pilot-unified-links">
         <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
@@ -27,46 +28,135 @@
         <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
         <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
         <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
-        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+        <a href="/api-reference" data-pilot-nav-link="api" data-i18n="navApi">API</a>
       </nav>
     </header>
     <div class="noise" aria-hidden="true"></div>
     <div class="wrap">
-      <div class="lang-switch" style="justify-content: flex-end; margin-bottom: 1rem" role="group" aria-label="Language">
-        <span class="lang-label" data-i18n="langLabel">Language</span>
-        <button type="button" class="lang-btn" data-lang="en">EN</button>
-        <button type="button" class="lang-btn" data-lang="zh">中文</button>
+      <div class="know-page-head">
+        <div class="lang-switch" role="group" aria-label="Language">
+          <span class="lang-label" data-i18n="langLabel">Language</span>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="zh">中文</button>
+        </div>
       </div>
-      <h1 class="pilot-gradient-headline" data-i18n="surTitle">Pilot Surrogate models</h1>
-      <p class="portal-lead" data-i18n="surLead"></p>
-      <h2 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: #e8a54b" data-i18n="surCatalogTitle">Catalog</h2>
-      <div id="surrogate-list" class="surrogate-list"></div>
-      <h2 style="font-size: 1.1rem; margin: 2rem 0 0.75rem; color: #5b9fd4" data-i18n="surRegisterTitle">Register</h2>
-      <p class="hint" style="margin: 0 0 0.75rem; font-size: 0.85rem" data-i18n="surRegisterHint"></p>
-      <form class="register-form" id="sur-register">
-        <input type="text" name="entry_id" placeholder="id" required pattern="[a-z0-9._-]+" />
-        <input type="text" name="title_en" placeholder="Title EN" />
-        <input type="text" name="title_zh" placeholder="Title ZH" />
-        <textarea name="desc_en" placeholder="Desc EN"></textarea>
-        <textarea name="desc_zh" placeholder="Desc ZH"></textarea>
-        <input type="url" name="paper_url" placeholder="Paper URL" />
-        <input type="url" name="code_url" placeholder="Code URL" />
-        <input type="text" name="register_key" placeholder="X-Pilot-Register-Key (if set)" autocomplete="off" />
-        <div class="portal-actions">
-          <button type="submit" data-i18n="surSubmit">Submit</button>
+      <p class="section-eyebrow know-eyebrow" data-i18n="surEyebrow"></p>
+      <h1 class="pilot-gradient-headline" data-i18n="surTitle"></h1>
+      <p class="portal-lead know-lead" data-i18n="surLead"></p>
+
+      <section class="sur-catalog-section">
+        <div class="sur-section-head">
+          <h2 class="sur-section-title" data-i18n="surCatalogTitle"></h2>
+          <p class="sur-section-hint" data-i18n="surCatalogHint"></p>
         </div>
-      </form>
-      <h2 style="font-size: 1.1rem; margin: 2rem 0 0.75rem; color: #5b9fd4" data-i18n="surBundleTitle">Upload</h2>
-      <p class="hint" style="margin: 0 0 0.75rem; font-size: 0.85rem" data-i18n="surBundleHint"></p>
-      <form id="sur-bundle" class="register-form">
-        <input type="text" name="surrogate_id" placeholder="surrogate id" required pattern="[a-z0-9._-]+" />
-        <input type="file" name="bundle" required />
-        <input type="text" name="register_key" placeholder="X-Pilot-Register-Key" autocomplete="off" />
-        <div class="portal-actions">
-          <button type="submit" data-i18n="surBundleBtn">Upload zip</button>
+        <div id="surrogate-list" class="surrogate-list sur-catalog"></div>
+      </section>
+
+      <div
+        id="sur-detail-modal"
+        class="sur-modal"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sur-modal-title"
+      >
+        <div class="sur-modal-backdrop" tabindex="-1" data-sur-modal-close></div>
+        <div class="sur-modal-panel">
+          <button type="button" class="sur-modal-close" data-sur-modal-close aria-label="Close">×</button>
+          <div class="sur-modal-inner" id="sur-modal-inner"></div>
         </div>
-      </form>
-      <footer class="site" style="margin-top: 2rem" data-i18n="surFooter"></footer>
+      </div>
+
+      <section class="sur-forms-section">
+        <div class="sur-form-card">
+          <h2 class="sur-section-title" data-i18n="surRegisterTitle"></h2>
+          <p class="sur-section-hint" data-i18n="surRegisterHint"></p>
+          <form class="register-form sur-form-grid" id="sur-register">
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormId"></span
+              ><input type="text" name="entry_id" required pattern="[a-z0-9._-]+" data-i18n-placeholder="surFormId"
+            /></label>
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormTitleEn"></span
+              ><input type="text" name="title_en" data-i18n-placeholder="surFormTitleEn"
+            /></label>
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormTitleZh"></span
+              ><input type="text" name="title_zh" data-i18n-placeholder="surFormTitleZh"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormDescEn"></span
+              ><textarea name="desc_en" data-i18n-placeholder="surFormDescEn"></textarea>
+            </label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormDescZh"></span
+              ><textarea name="desc_zh" data-i18n-placeholder="surFormDescZh"></textarea>
+            </label>
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormPaper"></span
+              ><input type="url" name="paper_url" data-i18n-placeholder="surFormPaper"
+            /></label>
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormCode"></span
+              ><input type="url" name="code_url" data-i18n-placeholder="surFormCode"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormAuthors"></span
+              ><input type="text" name="authors" autocomplete="off" data-i18n-placeholder="surFormAuthorsPh"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormTags"></span
+              ><input type="text" name="tags" autocomplete="off" data-i18n-placeholder="surFormTagsPh"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormScenarios"></span
+              ><input type="text" name="scenarios" autocomplete="off" data-i18n-placeholder="surFormScenariosPh"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormKey"></span
+              ><input type="text" name="register_key" autocomplete="off" data-i18n-placeholder="surFormKey"
+            /></label>
+            <div class="sur-field sur-field--full sur-field-actions">
+              <button type="submit" class="btn-pill btn-pill--primary" data-i18n="surSubmit"></button>
+            </div>
+          </form>
+        </div>
+
+        <div class="sur-form-card sur-form-card--bundle">
+          <h2 class="sur-section-title" data-i18n="surBundleTitle"></h2>
+          <p class="sur-section-hint" data-i18n="surBundleHint"></p>
+          <form id="sur-bundle" class="register-form sur-form-grid sur-bundle-form">
+            <label class="sur-field"
+              ><span class="sur-label" data-i18n="surFormBundleId"></span
+              ><input type="text" name="surrogate_id" required pattern="[a-z0-9._-]+" data-i18n-placeholder="surFormBundleId"
+            /></label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormBundleFile"></span
+              ><input type="file" name="bundle" required />
+            </label>
+            <label class="sur-field sur-field--full"
+              ><span class="sur-label" data-i18n="surFormKey"></span
+              ><input type="text" name="register_key" autocomplete="off" data-i18n-placeholder="surFormKey"
+            /></label>
+            <div class="sur-field sur-field--full sur-field-actions">
+              <button type="submit" class="btn-pill btn-pill--ghost" data-i18n="surBundleBtn"></button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <footer class="site know-footer" data-i18n="surFooter"></footer>
     </div>
+    <script>
+      (function () {
+        var bar = document.querySelector(".pilot-unified-bar--scroll");
+        if (!bar) return;
+        function onScroll() {
+          bar.classList.toggle("is-scrolled", window.scrollY > 8);
+        }
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+      })();
+    </script>
   </body>
 </html>

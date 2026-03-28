@@ -28,8 +28,36 @@ curl -s https://YOUR_HOST/api/v1/health
 Example response:
 
 ```json
-{"status":"ok","service":"pilot","version":"0.2.0","api":"v1"}
+{
+  "status": "ok",
+  "service": "pilot",
+  "version": "0.2.0",
+  "api": "v1",
+  "platform_line": "pilot-ai-em-1.x",
+  "pillars": [
+    {
+      "id": "knowledge",
+      "name": "Knowledge foundation",
+      "api_base_path": "/api/v1/knowledge",
+      "description": "Corpus ingestion, retrieval-grounded Q&A, arXiv fetch."
+    },
+    {
+      "id": "agent",
+      "name": "Agent / simulation orchestration",
+      "api_base_path": "/api/v1/simulations",
+      "description": "Natural language to task spec, openEMS or mock execution, artifacts."
+    },
+    {
+      "id": "surrogate",
+      "name": "Surrogate registry",
+      "api_base_path": "/api/v1/surrogates",
+      "description": "Model cards, publication and code links, optional artifact bundles."
+    }
+  ]
+}
 ```
+
+Use `platform_line` and `pillars` for **discovery** in external tools (MES scripts, lab dashboards, future EM software embedding). The running server’s `version` string is authoritative for the build.
 
 ### `POST /api/v1/simulations`
 
@@ -57,6 +85,7 @@ curl -s -X POST "https://YOUR_HOST/api/v1/simulations" \
 | `report_markdown` | Full human-readable report |
 | `summary` | Structured metrics (S11, mode, solver, paths, …) |
 | `artifact_urls` | Relative paths to `s11.png`, `s11.csv`, generated script |
+| `pipeline_trace` | Ordered stages (`parse`, `plan`, `validate`, `generate`, `execute`, `report`) with `label`, `status`, `detail` — for consoles and auditing |
 | `error` | Present when `ok` is `false` |
 
 **Artifacts** — prefix with your host:
@@ -64,6 +93,21 @@ curl -s -X POST "https://YOUR_HOST/api/v1/simulations" \
 - `GET /api/v1/artifacts/{task_id}/s11.png`
 - `GET /api/v1/artifacts/{task_id}/s11.csv`
 - `GET /api/v1/artifacts/{task_id}/run_openems_patch.py`
+
+### Knowledge — `POST /api/v1/knowledge/chat`
+
+| Field | Type | Required |
+|-------|------|----------|
+| `messages` | `[{ "role": "user"\|"assistant", "content": "..." }]` | yes |
+| `source_doc_ids` | list of corpus `doc_id` strings | no — empty means search all indexed documents; non-empty restricts keyword retrieval to those docs |
+
+Response includes `content`, `citations` (retrieved chunks with `id`, `doc_id`, `source`, `score`, `text`), and `provider` (`none` \| `ollama` \| `openai_compat`).
+
+Other knowledge routes: `GET /sources`, `POST /upload`, `POST /ingest-text`, `POST /fetch-arxiv` (see OpenAPI).
+
+### Surrogate — `POST /api/v1/surrogates/register`
+
+Body may include `schema_version` (default `1.0`), `authors` and `scenarios` as string lists, plus existing `tags`, titles, descriptions, URLs.
 
 ### Legacy (deprecated)
 

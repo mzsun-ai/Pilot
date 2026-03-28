@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
 
 import pilot
 from pilot.logging_utils import setup_logging
+from pilot.platform.capabilities import PLATFORM_LINE, platform_pillars
 from pilot.utils import load_config
 from pilot.workflow import run_pilot_pipeline
 from web.portal_routes import build_knowledge_router, build_surrogate_router
@@ -51,6 +52,10 @@ class SimulationRunResponse(BaseModel):
     report_path: str | None = None
     generated_script: str | None = None
     summary: dict[str, Any] | None = None
+    pipeline_trace: list[dict[str, Any]] | None = Field(
+        None,
+        description="Ordered stages: parse, plan, validate, generate, execute, report — for consoles and integrators.",
+    )
     error: str | None = Field(None, description="Populated when ok=false")
     artifact_urls: dict[str, str] | None = Field(
         None,
@@ -63,6 +68,14 @@ class HealthResponse(BaseModel):
     service: str = "pilot"
     version: str = pilot.__version__
     api: str = "v1"
+    platform_line: str = Field(
+        default=PLATFORM_LINE,
+        description="Product line id for integrators (see docs/PLATFORM_VISION.md).",
+    )
+    pillars: list[dict[str, str]] = Field(
+        default_factory=platform_pillars,
+        description="Capability pillars: id, name, api_base_path, description.",
+    )
 
 
 def _ensure_logging() -> None:
@@ -112,6 +125,7 @@ async def _run_simulation(body: SimulationRequest) -> SimulationRunResponse:
         report_path=out.get("report_path"),
         generated_script=out.get("generated_script"),
         summary=out.get("results"),
+        pipeline_trace=out.get("pipeline_trace"),
         artifact_urls=_artifact_paths_relative(tid),
     )
 
@@ -121,8 +135,11 @@ def create_app() -> FastAPI:
     _config = load_config(_CONFIG_PATH)
 
     app = FastAPI(
-        title="Pilot EM Agent API",
-        description="Natural-language → openEMS FDTD pipeline. OpenAPI: `/openapi.json`, docs: `/docs`.",
+        title="Pilot — AI platform API (EM)",
+        description=(
+            "Unified platform: knowledge corpus, simulation agent (openEMS/mock), surrogate registry. "
+            "OpenAPI: `/openapi.json`, docs: `/docs`. Discovery: `GET /api/v1/health` returns `pillars`."
+        ),
         version=pilot.__version__,
         contact={"name": "Pilot", "url": "https://github.com/mzsun-ai/Pilot"},
         license_info={"name": "MIT", "url": "https://github.com/mzsun-ai/Pilot/blob/main/LICENSE"},
@@ -179,6 +196,14 @@ def create_app() -> FastAPI:
     @app.get("/team/", response_class=HTMLResponse, include_in_schema=False)
     async def team_page_slash() -> HTMLResponse:
         return await team_page()
+
+    @app.get("/api-reference", response_class=HTMLResponse, include_in_schema=False)
+    async def api_reference_page() -> HTMLResponse:
+        return _serve_html("api.html")
+
+    @app.get("/api-reference/", response_class=HTMLResponse, include_in_schema=False)
+    async def api_reference_page_slash() -> HTMLResponse:
+        return _serve_html("api.html")
 
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon() -> RedirectResponse:

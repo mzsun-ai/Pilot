@@ -19,6 +19,19 @@ from pilot.state_machine import StateMachine, WorkflowEvent
 from pilot.utils import ensure_dirs, write_json
 
 
+def _validate_task_spec(spec: SimulationTaskSpec) -> tuple[str, list[str]]:
+    """Non-blocking checks; returns (status 'ok'|'warn', human-readable messages)."""
+    warns: list[str] = []
+    if spec.frequency.center_ghz <= 0:
+        warns.append("center_ghz should be positive")
+    low, high = spec.frequency.band_low_ghz, spec.frequency.band_high_ghz
+    if low is not None and high is not None and low >= high:
+        warns.append("frequency band_low_ghz must be below band_high_ghz")
+    if spec.geometry.substrate_thickness_mm <= 0:
+        warns.append("substrate thickness should be positive")
+    return ("ok", []) if not warns else ("warn", warns)
+
+
 def run_pilot_pipeline(
     query: str,
     *,
@@ -47,6 +60,10 @@ def run_pilot_pipeline(
 
     sm = StateMachine()
     spec: SimulationTaskSpec | None = None
+    pipeline_trace: list[dict[str, Any]] = []
+
+    def trace(stage: str, label: str, status: str = "ok", detail: str = "") -> None:
+        pipeline_trace.append({"stage": stage, "label": label, "status": status, "detail": detail})
 
     try:
         spec = parse_natural_language(
@@ -56,6 +73,7 @@ def run_pilot_pipeline(
             substrate_thickness_mm=float(parser_cfg.get("default_substrate_thickness_mm", 1.6)),
         )
         sm.transition(WorkflowEvent.PARSE_OK)
+        trace("parse", "Parse natural language → task specification")
 
         plan = build_plan(spec)
         sm.transition(WorkflowEvent.PLAN_OK)
@@ -64,9 +82,19 @@ def run_pilot_pipeline(
         plan_path = task_specs / f"{plan.task_id}_plan.json"
         write_json(plan_path, plan.model_dump())
         log.info("Wrote task spec %s", task_spec_path)
+        trace("plan", "Execution plan and persisted task spec")
+
+        val_st, val_msgs = _validate_task_spec(spec)
+        trace(
+            "validate",
+            "Validator — frequency and geometry sanity",
+            val_st,
+            "; ".join(val_msgs) if val_msgs else "checks passed",
+        )
 
         run_dir = openems_runs / plan.task_id
         script_path = build_openems_patch_script(spec, run_dir)
+        trace("generate", "Generated openEMS driver script", "ok", str(script_path.name))
 
         mode_pref = str(em_cfg.get("mode", "auto")).lower()
         timeout_sec = int(em_cfg.get("timeout_sec", 900))
@@ -131,6 +159,8 @@ def run_pilot_pipeline(
             result_dict.update(mock_out)
             solver_mode = "mock"
 
+        trace("execute", "FDTD execution", "ok", f"backend={solver_mode}")
+
         sm.transition(WorkflowEvent.BUILD_OK)
         sm.transition(WorkflowEvent.SETUP_OK)
         sm.transition(WorkflowEvent.RUN_OK)
@@ -166,6 +196,7 @@ def run_pilot_pipeline(
 
         summary_path = reports / f"{plan.task_id}_summary.json"
         write_json(summary_path, results.model_dump())
+        trace("report", "Markdown report and summary JSON", "ok", str(report_path.name))
 
         log.info("Done. Report: %s", report_path)
         return {
@@ -178,6 +209,7 @@ def run_pilot_pipeline(
             "generated_script": str(script_path),
             "results": results.model_dump(),
             "report_markdown": report_md,
+            "pipeline_trace": pipeline_trace,
         }
     except Exception as e:
         log.exception("Pipeline failed: %s", e)

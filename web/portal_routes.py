@@ -8,39 +8,14 @@ from pathlib import Path
 from typing import Any, Callable
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
-from pydantic import BaseModel, Field
 
 from pilot.knowledge_service import KnowledgeCorpus, complete_chat, ingest_arxiv_to_corpus
-
-
-class KnowledgeIngestTextBody(BaseModel):
-    title: str = Field(..., min_length=1, max_length=500)
-    text: str = Field(..., min_length=10, max_length=500_000)
-
-
-class KnowledgeChatMessage(BaseModel):
-    role: str
-    content: str
-
-
-class KnowledgeChatBody(BaseModel):
-    messages: list[KnowledgeChatMessage] = Field(..., min_length=1)
-
-
-class KnowledgeArxivBody(BaseModel):
-    query: str = Field(..., min_length=2, max_length=400)
-    max_results: int = Field(3, ge=1, le=15)
-
-
-class SurrogateRegisterBody(BaseModel):
-    id: str = Field(..., min_length=2, max_length=80, pattern=r"^[a-z0-9._-]+$")
-    title_en: str = Field("", max_length=300)
-    title_zh: str = Field("", max_length=300)
-    desc_en: str = Field("", max_length=4000)
-    desc_zh: str = Field("", max_length=4000)
-    paper_url: str = ""
-    code_url: str = ""
-    tags: list[str] = Field(default_factory=list)
+from pilot.platform.api_models import (
+    KnowledgeArxivBody,
+    KnowledgeChatBody,
+    KnowledgeIngestTextBody,
+    SurrogateRegisterBody,
+)
 
 
 def _get_corpus(request: Request, root: Path, get_config: Callable[[], dict[str, Any]]) -> KnowledgeCorpus:
@@ -85,7 +60,13 @@ def build_knowledge_router(root: Path, get_config: Callable[[], dict[str, Any]])
         last_user = next((m["content"] for m in reversed(msgs) if m.get("role") == "user"), "")
         if not last_user.strip():
             raise HTTPException(400, "Need a user message")
-        return await complete_chat(cfg, msgs, last_user.strip(), c)
+        return await complete_chat(
+            cfg,
+            msgs,
+            last_user.strip(),
+            c,
+            source_doc_ids=body.source_doc_ids or None,
+        )
 
     @r.post("/fetch-arxiv")
     async def fetch_arxiv(request: Request, body: KnowledgeArxivBody) -> dict[str, Any]:
