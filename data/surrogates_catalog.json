@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "example-patch-nn",
+      "title_en": "Example: patch antenna surrogate (placeholder)",
+      "title_zh": "示例：贴片天线代理模型（占位）",
+      "desc_en": "Replace with your lab entry via /surrogate registration.",
+      "desc_zh": "请在 /surrogate 页面登记真实条目替换本示例。",
+      "paper_url": "",
+      "code_url": "",
+      "tags": ["demo"]
+    }
+  ]
+}

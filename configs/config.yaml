@@ -1,0 +1,42 @@
+# Pilot MVP — free / open-source EM solver (openEMS)
+
+paths:
+  outputs_dir: "outputs"
+  logs_dir: "logs"
+  task_specs_dir: "outputs/task_specs"
+  reports_dir: "outputs/reports"
+  openems_runs_dir: "outputs/openems_runs"
+
+# openEMS driver execution
+em_solver:
+  # auto: try real openEMS if CSXCAD+openEMS import works; else mock
+  # openems: require real run (falls back to mock on failure)
+  # mock: always mock curve
+  mode: "auto"
+  timeout_sec: 900
+  # Optional: path to Python that has openEMS (e.g. /usr/bin/python3 after apt install)
+  python_exe: null
+
+logging:
+  level: "INFO"
+  file_name: "pilot_run.log"
+
+parser:
+  default_dielectric: 4.4
+  default_loss_tangent: 0.02
+  default_substrate_thickness_mm: 1.6
+
+# Pilot Knowledge — corpus under outputs/knowledge_corpus/
+knowledge:
+  chunk_size: 900
+  chunk_overlap: 120
+  llm_provider: none
+  ollama_base: "http://127.0.0.1:11434"
+  ollama_model: "llama3.2"
+  openai_base: "https://api.openai.com/v1"
+  openai_api_key: ""
+  openai_model: "gpt-4o-mini"
+
+surrogate:
+  admin_register_key: ""
+

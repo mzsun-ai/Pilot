@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Tests / tooling
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Runtime outputs (local runs)
+outputs/
+logs/
+*.log
+
+# Local openEMS / CSXCAD source builds (clone + compile per deps/BUILD.md; ~40MB+)
+deps/src/
+
+# Editor / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Secrets (never commit)
+.env
+.env.*
+*.pem

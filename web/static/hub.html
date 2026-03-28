@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pilot</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/portal.css" />
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/pilot-nav.js" defer></script>
+  </head>
+  <body class="hub-page" data-pilot-page="hub" data-pilot-nav="hub">
+    <header class="pilot-unified-bar" aria-label="Main navigation">
+      <a class="pilot-unified-logo" href="/">Pilot</a>
+      <nav class="pilot-unified-links">
+        <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
+        <a href="/knowledge" data-pilot-nav-link="knowledge" data-i18n="navKnowledge">Knowledge</a>
+        <a href="/agent" data-pilot-nav-link="agent" data-i18n="navAgent">Agent</a>
+        <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
+        <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
+        <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
+        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+      </nav>
+    </header>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="hub-lang lang-switch" role="group" aria-label="Language">
+        <span class="lang-label" data-i18n="langLabel">Language</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh">中文</button>
+      </div>
+      <div class="hub-hero">
+        <h1 class="pilot-gradient-headline hub-hero-title" data-i18n="hubTitle">Pilot</h1>
+        <p class="hub-hero-sub" data-i18n="hubSubtitle"></p>
+      </div>
+      <div class="hub-rows">
+        <a class="hub-row" href="/knowledge">
+          <div class="hub-row-cartoon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+              <ellipse cx="48" cy="88" rx="36" ry="5" fill="#0a0e14" opacity="0.35" />
+              <path
+                d="M24 72 L24 36 Q24 28 32 28 L64 28 Q72 28 72 36 L72 72 Q72 78 66 78 L30 78 Q24 78 24 72Z"
+                fill="#2a3548"
+                stroke="#5b9fd4"
+                stroke-width="2"
+              />
+              <circle cx="78" cy="30" r="14" fill="#1e2633" stroke="#e8a54b" stroke-width="2" />
+            </svg>
+          </div>
+          <span class="hub-row-num" data-i18n="hubRow1Label">01</span>
+          <div class="hub-row-text">
+            <h2 data-i18n="hubRow1Title">Pilot Knowledge</h2>
+            <p data-i18n="hubRow1Desc"></p>
+          </div>
+          <span class="hub-row-go" data-i18n="hubRowGo">Open →</span>
+        </a>
+        <a class="hub-row" href="/agent">
+          <div class="hub-row-cartoon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+              <ellipse cx="48" cy="88" rx="36" ry="5" fill="#0a0e14" opacity="0.35" />
+              <rect x="30" y="38" width="36" height="40" rx="10" fill="#2a3548" stroke="#e8a54b" stroke-width="2" />
+              <rect x="36" y="22" width="24" height="18" rx="6" fill="#1e2633" stroke="#5b9fd4" stroke-width="2" />
+              <line x1="48" y1="22" x2="48" y2="10" stroke="#e8a54b" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </div>
+          <span class="hub-row-num" data-i18n="hubRow2Label">02</span>
+          <div class="hub-row-text">
+            <h2 data-i18n="hubRow2Title">Pilot Agent</h2>
+            <p data-i18n="hubRow2Desc"></p>
+          </div>
+          <span class="hub-row-go" data-i18n="hubRowGo">Open →</span>
+        </a>
+        <a class="hub-row" href="/surrogate">
+          <div class="hub-row-cartoon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+              <ellipse cx="48" cy="88" rx="36" ry="5" fill="#0a0e14" opacity="0.35" />
+              <path d="M14 70 Q28 22 48 34 T82 52" stroke="#5b9fd4" stroke-width="3" fill="none" stroke-linecap="round" />
+              <circle cx="48" cy="34" r="5" fill="#e8a54b" />
+            </svg>
+          </div>
+          <span class="hub-row-num" data-i18n="hubRow3Label">03</span>
+          <div class="hub-row-text">
+            <h2 data-i18n="hubRow3Title">Pilot Surrogate models</h2>
+            <p data-i18n="hubRow3Desc"></p>
+          </div>
+          <span class="hub-row-go" data-i18n="hubRowGo">Open →</span>
+        </a>
+      </div>
+      <footer class="site" style="margin-top: 3rem" data-i18n="hubFooter"></footer>
+    </div>
+  </body>
+</html>

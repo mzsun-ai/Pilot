@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pilot Knowledge</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/portal.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" defer></script>
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/pilot-nav.js" defer></script>
+    <script src="/static/knowledge.js" defer></script>
+  </head>
+  <body class="portal-page" data-pilot-page="knowledge" data-pilot-nav="knowledge">
+    <header class="pilot-unified-bar" aria-label="Main navigation">
+      <a class="pilot-unified-logo" href="/">Pilot</a>
+      <nav class="pilot-unified-links">
+        <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
+        <a href="/knowledge" data-pilot-nav-link="knowledge" data-i18n="navKnowledge">Knowledge</a>
+        <a href="/agent" data-pilot-nav-link="agent" data-i18n="navAgent">Agent</a>
+        <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
+        <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
+        <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
+        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+      </nav>
+    </header>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="lang-switch" style="justify-content: flex-end; margin-bottom: 1rem" role="group" aria-label="Language">
+        <span class="lang-label" data-i18n="langLabel">Language</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh">中文</button>
+      </div>
+      <h1 class="pilot-gradient-headline" data-i18n="knowTitle">Pilot Knowledge</h1>
+      <p class="portal-lead" data-i18n="knowLead"></p>
+      <div class="knowledge-grid">
+        <div class="knowledge-panel">
+          <h2 data-i18n="knowChatTitle">Chat</h2>
+          <div id="knowledge-chat-log"></div>
+          <textarea id="knowledge-input" placeholder=""></textarea>
+          <div class="portal-actions">
+            <button type="button" id="knowledge-send" data-i18n="knowSend">Send</button>
+          </div>
+        </div>
+        <div class="knowledge-panel">
+          <h2 data-i18n="knowCorpusTitle">Corpus</h2>
+          <p class="hint" style="margin: 0 0 0.75rem; font-size: 0.85rem; color: #8b95a8" data-i18n="knowCorpusHint"></p>
+          <label class="file-btn portal-actions secondary">
+            <span data-i18n="knowUploadBtn">Upload</span>
+            <input type="file" id="knowledge-file" accept=".txt,.md,.pdf,.csv,.png,.jpg,.jpeg,.webp" />
+          </label>
+          <div class="portal-actions" style="margin-top: 0.75rem">
+            <input type="text" id="arxiv-query" style="flex:1;min-width:120px;padding:0.45rem;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:#0f1319;color:#e8ecf2" placeholder="arXiv query" />
+            <button type="button" class="secondary" id="arxiv-fetch" data-i18n="knowArxivBtn">Fetch arXiv</button>
+          </div>
+          <h3 style="font-size:0.85rem;margin:1rem 0 0.35rem;color:#e8a54b" data-i18n="knowSourcesTitle">Sources</h3>
+          <div id="knowledge-sources"></div>
+        </div>
+      </div>
+      <footer class="site" style="margin-top: 2rem" data-i18n="knowFooter"></footer>
+    </div>
+  </body>
+</html>

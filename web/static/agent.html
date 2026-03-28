@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pilot Agent</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/portal.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" defer></script>
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/pilot-nav.js" defer></script>
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body data-pilot-page="console" data-pilot-nav="agent">
+    <header class="pilot-unified-bar" aria-label="Main navigation">
+      <a class="pilot-unified-logo" href="/">Pilot</a>
+      <nav class="pilot-unified-links">
+        <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
+        <a href="/knowledge" data-pilot-nav-link="knowledge" data-i18n="navKnowledge">Knowledge</a>
+        <a href="/agent" data-pilot-nav-link="agent" data-i18n="navAgent">Agent</a>
+        <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
+        <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
+        <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
+        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+      </nav>
+    </header>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="wrap">
+      <header class="brand">
+        <div class="brand-mark">
+          <h1 class="pilot-gradient-headline brand-hero-title" data-i18n="agentHeroTitle">Pilot Agent</h1>
+          <span class="tag">openEMS</span>
+        </div>
+        <div class="brand-right">
+          <div class="lang-switch" role="group" aria-label="Language">
+            <span class="lang-label" data-i18n="langLabel">Language</span>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="zh">中文</button>
+          </div>
+          <p class="strap" data-i18n="strap" data-i18n-html></p>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <div class="card-inner">
+            <h2 data-i18n="designTitle">Design request</h2>
+            <p class="hint" data-i18n="designHint"></p>
+            <label class="sr-only" for="query" data-i18n="queryLabel">Simulation request</label>
+            <textarea id="query" placeholder=""></textarea>
+            <div class="chips">
+              <button type="button" class="chip" data-i18n="chip24" data-q="Design a 2.4 GHz rectangular patch antenna on FR4 and show me the return loss near resonance."></button>
+              <button type="button" class="chip" data-i18n="chip35" data-q="3.5 GHz patch antenna on FR4 with return loss plot"></button>
+              <button type="button" class="chip" data-i18n="chip58" data-q="Simulate a microstrip patch at 5.8 GHz on FR4 (eps_r ~ 4.4), report S11 from 5 to 6.5 GHz."></button>
+            </div>
+            <div class="actions">
+              <button type="button" id="submit" data-i18n="submit">Run simulation</button>
+              <span class="status" id="status" data-i18n="statusReady">Ready</span>
+            </div>
+          </div>
+        </section>
+        <section class="card empty" id="results-panel">
+          <div class="card-inner">
+            <h2 data-i18n="resultsTitle">Results</h2>
+            <p class="hint" data-i18n="resultsHint"></p>
+            <div class="placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <p class="placeholder-text" data-i18n="placeholderHtml" data-i18n-html></p>
+            </div>
+            <div id="error" class="error-banner" role="alert"></div>
+            <div id="report" class="report-body"></div>
+            <div id="plot-wrap" class="plot-block" style="display: none">
+              <img id="plot-img" alt="" />
+              <div class="plot-caption"></div>
+            </div>
+            <div id="artifact-links" class="links-row"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="card showcase-card-wrap">
+        <div class="card-inner">
+          <h2 data-i18n="showcaseTitle">Example scenarios</h2>
+          <p class="hint showcase-hint" data-i18n="showcaseSubtitle"></p>
+          <div class="showcase-grid">
+            <article class="showcase-tile">
+              <span class="sc-tag" data-i18n="ex1Tag"></span>
+              <h3 class="sc-title" data-i18n="ex1Title"></h3>
+              <p class="sc-desc" data-i18n="ex1Desc"></p>
+              <button type="button" class="chip sc-action" data-i18n="exUsePrompt" data-q="Design a 2.4 GHz rectangular patch antenna on FR4 and show me the return loss near resonance."></button>
+            </article>
+            <article class="showcase-tile">
+              <span class="sc-tag" data-i18n="ex2Tag"></span>
+              <h3 class="sc-title" data-i18n="ex2Title"></h3>
+              <p class="sc-desc" data-i18n="ex2Desc"></p>
+              <button type="button" class="chip sc-action" data-i18n="exUsePrompt" data-q="3.5 GHz patch antenna on FR4 with return loss plot"></button>
+            </article>
+            <article class="showcase-tile">
+              <span class="sc-tag" data-i18n="ex3Tag"></span>
+              <h3 class="sc-title" data-i18n="ex3Title"></h3>
+              <p class="sc-desc" data-i18n="ex3Desc"></p>
+              <button type="button" class="chip sc-action" data-i18n="exUsePrompt" data-q="Simulate a microstrip patch at 5.8 GHz on FR4 (eps_r ~ 4.4), report S11 from 5 to 6.5 GHz."></button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="highlights-block">
+        <h2 class="section-title" data-i18n="highlightsTitle"></h2>
+        <div class="highlights-grid">
+          <div class="hl-card">
+            <h3 data-i18n="hl1Title"></h3>
+            <p data-i18n="hl1Desc"></p>
+          </div>
+          <div class="hl-card">
+            <h3 data-i18n="hl2Title"></h3>
+            <p data-i18n="hl2Desc"></p>
+          </div>
+          <div class="hl-card">
+            <h3 data-i18n="hl3Title"></h3>
+            <p data-i18n="hl3Desc"></p>
+          </div>
+          <div class="hl-card">
+            <h3 data-i18n="hl4Title"></h3>
+            <p data-i18n="hl4Desc"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card pipeline-card">
+        <div class="card-inner pipeline-inner">
+          <h2 data-i18n="pipelineTitle"></h2>
+          <p class="pipeline-flow" data-i18n="pipelineHtml" data-i18n-html></p>
+        </div>
+      </section>
+
+      <footer class="site" data-i18n="footer"></footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pilot — Guide</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Playfair+Display:wght@600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/portal.css" />
+    <script src="/static/i18n.js" defer></script>
+    <script src="/static/pilot-nav.js" defer></script>
+  </head>
+  <body class="guide-page" data-pilot-page="guide" data-pilot-nav="guide">
+    <header class="pilot-unified-bar" aria-label="Main navigation">
+      <a class="pilot-unified-logo" href="/">Pilot</a>
+      <nav class="pilot-unified-links">
+        <a href="/" data-pilot-nav-link="hub" data-i18n="navHome">Home</a>
+        <a href="/knowledge" data-pilot-nav-link="knowledge" data-i18n="navKnowledge">Knowledge</a>
+        <a href="/agent" data-pilot-nav-link="agent" data-i18n="navAgent">Agent</a>
+        <a href="/surrogate" data-pilot-nav-link="surrogate" data-i18n="navSurrogate">Surrogate</a>
+        <a href="/guide" data-pilot-nav-link="guide" data-i18n="navGuide">Guide</a>
+        <a href="/team" data-pilot-nav-link="team" data-i18n="navTeam">Team</a>
+        <a href="/docs" data-pilot-nav-link="api" target="_blank" rel="noopener" data-i18n="navApi">API</a>
+      </nav>
+    </header>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="lang-switch" style="justify-content: flex-end; margin-bottom: 1rem" role="group" aria-label="Language">
+        <span class="lang-label" data-i18n="langLabel">Language</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh">中文</button>
+      </div>
+      <h1 class="pilot-gradient-headline">Pilot Guide</h1>
+      <div class="guide-simple">
+        <p><strong>Run server:</strong> <code>cd Pilot && pip install -r requirements.txt && uvicorn web.app:app --host 0.0.0.0 --port 8765</code></p>
+        <p><strong>URLs:</strong> <code>/</code> hub, <code>/agent</code> openEMS console, <code>/knowledge</code> RAG, <code>/surrogate</code> catalog.</p>
+        <p><strong>API:</strong> <a href="/docs">/docs</a> · <code>POST /api/v1/simulations</code> with <code>{"query":"..."}</code></p>
+        <p><a href="/">← Home</a></p>
+      </div>
+    </div>
+  </body>
+</html>
